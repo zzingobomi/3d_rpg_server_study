@@ -1,29 +1,29 @@
 export const world_server = (() => {
   class SocketWrapper {
-    socket_;
-    onMessage;
+    _socket;
+    _onMessage;
 
     constructor(params) {
-      this.socket_ = params.socket;
-      this.onMessage = null;
-      this.SetupSocket_();
+      this._socket = params.socket;
+      this._onMessage = null;
+      this.SetupSocket();
     }
 
     get ID() {
-      return this.socket_.id;
+      return this._socket.id;
     }
 
-    SetupSocket_() {
-      this.socket_.on("user-connected", () => {
+    SetupSocket() {
+      this._socket.on("user-connected", () => {
         console.log("socket.id: " + socket.id);
       });
-      this.socket_.on("disconnect", () => {
+      this._socket.on("disconnect", () => {
         console.log("Client disconnected.");
       });
       // 서버에서는 안쓰는거 같은데..? 맞나?
-      this.socket_.onAny((e, d) => {
+      this._socket.onAny((e, d) => {
         try {
-          if (!this.onMessage(e, d)) {
+          if (!this._onMessage(e, d)) {
             console.log("Unknown command (" + e + "), disconnected.");
             this.Disconnect();
           }
@@ -35,11 +35,11 @@ export const world_server = (() => {
     }
 
     Disconnect() {
-      this.socket_.disconnect(true);
+      this._socket.disconnect(true);
     }
 
     Send(msg, data) {
-      this.socket_.emit(msg, data);
+      this._socket.emit(msg, data);
     }
   }
 
@@ -48,14 +48,16 @@ export const world_server = (() => {
     worldMgr_;
 
     constructor(io) {
-      this.SetupIO_(io);
+      this._SetupIO(io);
     }
 
-    SetupIO_(io) {
+    _SetupIO(io) {
       io.on("connection", (socket) => {
         console.log(socket);
       });
     }
+
+    Run() {}
   }
 
   return {
