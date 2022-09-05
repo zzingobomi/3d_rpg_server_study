@@ -43,7 +43,20 @@ export const world_server = (() => {
     }
   }
 
-  class WorldServer {}
+  class WorldServer {
+    loginQueue_;
+    worldMgr_;
+
+    constructor(io) {
+      this.SetupIO_(io);
+    }
+
+    SetupIO_(io) {
+      io.on("connection", (socket) => {
+        console.log(socket);
+      });
+    }
+  }
 
   return {
     WorldServer: WorldServer,
