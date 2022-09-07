@@ -1,3 +1,6 @@
+import { login_queue } from "./login-queue.mjs";
+import { world_manager } from "./world-manager.mjs";
+
 export const world_server = (() => {
   class SocketWrapper {
     _socket;
@@ -44,17 +47,27 @@ export const world_server = (() => {
   }
 
   class WorldServer {
-    loginQueue_;
-    worldMgr_;
+    _loginQueue;
+    _worldMgr;
 
     constructor(io) {
+      this._loginQueue = new login_queue.LoginQueue((c, p) => {
+        this._OnLogin(c, p);
+      });
+
+      this._worldMgr = new world_manager.WorldManager({ parent: this });
+
       this._SetupIO(io);
     }
 
     _SetupIO(io) {
       io.on("connection", (socket) => {
-        console.log(socket);
+        this._loginQueue.Add(new SocketWrapper({ socket: socket }));
       });
+    }
+
+    _OnLogin(client, params) {
+      this._worldMgr.Add(client, params);
     }
 
     Run() {}
