@@ -1,8 +1,17 @@
 export const world_client = (() => {
   class WorldClient {
     _entity;
+    _client;
+
     constructor(client, entity) {
       this._entity = entity;
+
+      this._client = client;
+      this._client._onMessage = (e, d) => this._OnMessage(e, d);
+      this._client.Send("world.player", this._entity._CreatePlayerPacket());
+
+      // Hack
+      entity._parent = this;
     }
 
     _OnMessage(evt, data) {
@@ -22,11 +31,11 @@ export const world_client = (() => {
     }
 
     BroadcastChat(chatMessage) {
-      // const nearby = this.entity_.FindNear(50, true);
-      // for (let i = 0; i < nearby.length; ++i) {
-      //   const n = nearby[i];
-      //   n.parent_.client_.Send('chat.message', chatMessage);
-      // }
+      const nearby = this._entity.FindNear(50, true);
+      for (let i = 0; i < nearby.length; ++i) {
+        const n = nearby[i];
+        n._parent._client.Send("chat.message", chatMessage);
+      }
     }
   }
 
